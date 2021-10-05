@@ -17,6 +17,7 @@
                         (cons (list (car lo-vars) (car lo-vals)) env))))))
                               
 
+
 (define do-mathy-stuff-toaster
   (lambda (op num1 num2)
     (cond
@@ -35,8 +36,6 @@
       ((symbol? no-code) (list 'var-exp no-code))
       ((eq? (car no-code) 'do-mathy-stuff)
        (list 'math-exp (cadr no-code) (no-parser (caddr no-code)) (no-parser (cadddr no-code))))
-      ((eq? (car no-code) 'ask)
-       (list 'bool-exp (cadr no-code) 'do (no-parser (caddr no-code)) 'otherwise (no-parser (cadddr no-code))))
       ((eq? (car no-code) 'function)
        (list 'func-exp
              (append (list 'params) (cadr no-code))
@@ -48,7 +47,7 @@
     
 (define env '((age 21) (a 7) (b 5) (c 23)))
 
-;(define sample-no-code '(call (function (x y) (do-mathy-stuff + x y)) (do-mathy-stuff * a b) 15))
+(define sample-no-code '(call (function (x y) (do-mathy-stuff + x y)) (do-mathy-stuff * a b) 15))
 
 (define run-parsed-code
   (lambda (parsed-no-code env)
@@ -64,10 +63,6 @@
         (run-parsed-code (cadddr parsed-no-code) env)))
       ((eq? (car parsed-no-code) 'func-exp)
        (run-parsed-code (cadr (caddr parsed-no-code)) env))
-      ((eq? (car parsed-no-code) 'bool-exp)
-       (cond
-         ((eq? (car (cadr parsed-no-code)) 0) (run-parsed-code (cadddr parsed-no-code) env))
-         (else (run-parsed-code (car(cdddr (cddr parsed-no-code))) env)))) 
       (else
        (run-parsed-code
         (cadr parsed-no-code)
@@ -76,7 +71,6 @@
          (map (lambda (packet) (run-parsed-code (car packet) (cadr packet))) (map (lambda (x) (list x env)) (caddr parsed-no-code)))
          env))))))
 
-(define sample-no-code '(call (function (x) x) (ask (1) a b)))
 (define parsed-no-code (no-parser sample-no-code))
 parsed-no-code
 (run-parsed-code parsed-no-code env)
